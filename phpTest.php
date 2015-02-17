@@ -23,17 +23,17 @@ $data = array( // test are range from 10-128,000 bytes
   array(0=>"1111111110", "id2"=>"hello world", "id3"=>"foo bar", "id4"=>42)
 );
 
-echo "shm\n".'<hr>';
+echo '<hr><b>'."shm\n".'</b>';
 $t = array();
 foreach ($data as $key=>$val) $t[] = shm(4000+$key, $val);
 echo stats($t);
 
-echo "apc\n".'<hr>';
+echo '<hr><b>'."apc\n".'</b>';
 $t = array();
 foreach ($data as $key=>$val) $t[] = apc((string)$key, $val);
 echo stats($t);
 
-echo "memcached\n".'<hr>';
+echo '<hr><b>'."memcached\n".'</b>';
 $t = array();
 $m = new Memcached();
 $m->addServer("127.0.0.1", 11211);
@@ -41,7 +41,7 @@ foreach ($data as $key=>$val) $t[] = memcached($m, (string)$key, $val);
 echo stats($t);
 
  //not in memcached 1.x
-echo "memcached socket\n".'<hr>';
+echo '<hr><b>'."memcached socket\n</b>";
 $t = array();
 $m = new Memcached();
 $m->addServer("unix:///tmp/m.sock", 0);
@@ -49,27 +49,27 @@ foreach ($data as $key=>$val) $t[] = memcached($m, (string)$key, $val);
 echo stats($t);
 /**/
 
-echo "mysql myisam\n".'<hr>';
+echo '<hr><b>'."mysql myisam\n".'</b>';
 $t = array();
-$m = new mysqli("127.0.0.1", "root", "", "t1");
-mysqli_query($m, "drop table if exists t1.cache");
-mysqli_query($m, "create table t1.cache (id int primary key, data mediumtext) engine=myisam");
+$m = new mysqli("127.0.0.1", "root", "root", "test");
+mysqli_query($m, "drop table if exists test.cache");
+mysqli_query($m, "create table test.cache (id int primary key, data mediumtext) engine=myisam");
 foreach ($data as $key=>$val) $t[] = mysql_cache($m, $key, $val);
 echo stats($t);
 
-echo "mysql memory\n".'<hr>';
+echo '<hr><b>'."mysql memory\n".'<b>';
 $t = array();
-mysqli_query($m, "drop table if exists t1.cache");
-mysqli_query($m, "create table t1.cache (id int primary key, data varchar(65500)) engine=memory");
+mysqli_query($m, "drop table if exists test.cache");
+mysqli_query($m, "create table test.cache (id int primary key, data varchar(65500)) engine=memory");
 foreach ($data as $key=>$val) $t[] = mysql_cache($m, $key, $val);
 echo stats($t);
 
-echo "file cache\n".'<hr>';
+echo '<hr><b>'."file cache\n".'<b>';
 $t = array();
 foreach ($data as $key=>$val) $t[] = file_cache((string)$key, $val);
 echo stats($t);
 
-echo "php file cache\n".'<hr>';
+echo '<hr><b>'."php file cache\n".'<b>';
 $t = array();
 foreach ($data as $key=>$val) $t[] = php_cache((string)$key, $val);
 echo stats($t);
@@ -129,19 +129,20 @@ function memcached($m, $id, $data) {
   assert(substr(is_array($v) ? $v[0] : $v, 0, 10)=="1111111110");
   return $end;
 }
-
+/* you can uncomment with your server configuration 
+ */
 function mysql_cache($m, $id, $data) {
   $d = is_array($data) ? serialize($data) : $data;
-  mysqli_query($m, "insert into t1.cache values (".$id.", '".$d."')");
+  mysqli_query($m, "insert into test.cache values (".$id.", '".$d."')");
   $start = microtime(true);
   if (is_array($data)) {
     for ($i=0; $i<100000; $i++) {
-      $v = mysqli_query($m, "SELECT data FROM t1.cache WHERE id=".$id)->fetch_row();
+      $v = mysqli_query($m, "SELECT data FROM test.cache WHERE id=".$id)->fetch_row();
       $v = unserialize($v[0]);
     }
   } else {
     for ($i=0; $i<100000; $i++) {
-      $v = mysqli_query($m, "SELECT data FROM t1.cache WHERE id=".$id)->fetch_row();
+      $v = mysqli_query($m, "SELECT data FROM test.cache WHERE id=".$id)->fetch_row();
     }
   }
   echo format($end = microtime(true)-$start)." ";
