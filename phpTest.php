@@ -36,7 +36,7 @@ echo stats($t);
 
 echo "memcache\n".'<hr>';
 $t = array();
-$m = memcache_connect("127.0.0.1", 8080);
+$m = memcache_connect("127.0.0.1", 11211);
 foreach ($data as $key=>$val) $t[] = memcache($m, (string)$key, $val);
 echo stats($t);
 
