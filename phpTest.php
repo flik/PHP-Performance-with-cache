@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 ini_set("display_errors", 1);
 ini_set("apc.enable_cli", 1);
 mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ERROR);
-
+ 
 $data = array( // test are range from 10-128,000 bytes
   "1111111110",
   str_repeat("1111111110", 10),
@@ -31,19 +31,6 @@ echo stats($t);
 echo "apc\n".'<hr>';
 $t = array();
 foreach ($data as $key=>$val) $t[] = apc((string)$key, $val);
-echo stats($t);
-
-
-echo "memcache\n".'<hr>';
-$t = array();
-$m = memcache_connect("127.0.0.1", 11211);
-foreach ($data as $key=>$val) $t[] = memcache($m, (string)$key, $val);
-echo stats($t);
-
-echo "memcache socket\n".'<hr>';
-$t = array();
-$m = memcache_connect("unix:///tmp/m.sock", 0);
-foreach ($data as $key=>$val) $t[] = memcache($m, (string)$key, $val);
 echo stats($t);
 
 echo "memcached\n".'<hr>';
